@@ -456,11 +456,7 @@
                     $("#modal-cart").modal('hide');
                     // $("#tip-cart").reload();
                     // $("#tip-cart").fadeIn('fast');
-                    swal(
-                        'Thành công !',
-                        data.success,
-                        'success'
-                    )
+                    toastr.success(data.success, 'Thông báo', {timeOut: 3000});
                 }
             },
             })

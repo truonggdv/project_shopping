@@ -34,18 +34,14 @@ class CartController extends Controller
     }
 
     public function Update(Request $request){
-        $input = $request->all();
-        $rowId = $request->rowId;
-        $qty = $request->qty;
-        $count = count($rowId);
-        for($i = 0; $i < $count; $i++){
-            $arr[$i] = [
-                'rowId' => $rowId[$i],
-                'qty'=> $qty[$i]
-            ];
-        }
-            Cart::update(json_encode($arr));
-        return response()->json(['success' => "Cập nhật giỏ hàng thành công"]);
+        Cart::update($request->rowId,$request->qty);
+        // dd(1);
+    }
+
+    public function getDelete($id){
+        // dd($id);
+        Cart::remove($id);
+        return response()->json(['success' => "Đã xóa sản phẩm khỏi giỏ hàng"]);
     }
 
     public function getCheckout(){
@@ -75,7 +71,7 @@ class CartController extends Controller
     
             ];
             $email = $request->email;
-            Mail::send('frontend.pages.cartdone',$dataMail,function($meg) use ($email){
+            Mail::send('frontend.pages.content-mail',$dataMail,function($meg) use ($email){
                 $meg->from('truongdv.hqgroup@gmail.com','Hin Shop');
                 $meg->to($email)->subject('Leoo Shop');
             });
@@ -89,8 +85,11 @@ class CartController extends Controller
         // $pay->total = str_replace(',', '',Cart::total());
         // $pay->save();
         Cart::destroy();
-        return response()->json(['success' => "Mua hàng thành công"]);
+        // return response()->json(['success' => "Mua hàng thành công"]);
 
-        // return redirect('cart/succsess');
+        return redirect('cart/succsess');
+    }
+    public function getSusscess(){
+        return view('frontend.pages.done');
     }
 }
