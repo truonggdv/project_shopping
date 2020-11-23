@@ -502,6 +502,6 @@
                 $box.prop("checked", false);
             }
         });
-});
+    });
 </script>
 @stop

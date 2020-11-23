@@ -59,4 +59,12 @@ class IndexController extends Controller
         $category = Group::where('module','san-pham')->inRandomOrder()->get();
         return view('frontend.pages.category',compact('data','category','name'));
     }
+
+    public function contact(){
+        return view('frontend.pages.contact');
+    }
+
+    public function policy(){
+        return view('frontend.pages.policy');
+    }
 }

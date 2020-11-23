@@ -73,7 +73,8 @@
                                 <ul class="product__hover">
                                     <li><a href="{{\App\Library\Files::media( $item->image )}}" class="image-popup"><span class="arrow_expand"></span></a></li>
                                     <li><a href="{{url('san-pham/'.$item->slug)}}"><span class="far fa-eye"></span></a></li>
-                                    <li><a href="{{url('cart/add'.'/'.$item->id)}}"><span class="icon_bag_alt"></span></a></li>
+                                    {{-- <li><a href="{{url('cart/add'.'/'.$item->id)}}"><span class="icon_bag_alt"></span></a></li> --}}
+                                    <li data-id="{{$item->id}}" class="cart-add"><a href=""><span class="icon_bag_alt"></span></a></li>
                                 </ul>
                             </div>
                             <div class="product__item__text">
@@ -113,7 +114,8 @@
                                     <ul class="product__hover">
                                         <li><a href="{{\App\Library\Files::media( $item->image )}}" class="image-popup"><span class="arrow_expand"></span></a></li>
                                         <li><a href="{{url('san-pham/'.$item->slug)}}"><span class="far fa-eye"></span></a></li>
-                                        <li><a href="{{url('cart/add'.'/'.$item->id)}}"><span class="icon_bag_alt"></span></a></li>
+                                        {{-- <li><a href="{{url('cart/add'.'/'.$item->id)}}"><span class="icon_bag_alt"></span></a></li> --}}
+                                        <li data-id="{{$item->id}}" class="cart-add"><a href=""><span class="icon_bag_alt"></span></a></li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
@@ -141,6 +143,194 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="modal-cart" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel" style="font-weight: 400;font-family: 'Roboto', sans-serif;font-size:16px">Chi tiết sản phẩm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    Sản phẩm: <span style="font-weight: 500" id="title-details"></span> 
+                </div>
+                <form name="product-add" id="product-add">
+                    <div class="row">
+                        <div class="details-id"></div>
+                        <div class="col-lg-6">
+                        <div class="product__details__pic__slider owl-carousel owl-loaded">
+                            <img class="img-fluid" id="details-image" src="" alt="">
+                        </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="product__details__text">
+                            <h6 style="font-family: 'Roboto', sans-serif">Danh mục: <span style="font-weight: bold" class="" id="details-cat"></span></h6>
+                                <div class="rating" style="clear: left">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <span>( Không có bình luận )</span>
+                                </div>
+                                    <div class="product__details__price"><b id="details-price-sale"></b> VNĐ<span id="details-price"></span><span>VNĐ</span></div>
+                                <div class="" id="details-description"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product__details__widget mb-4">
+                        <ul>
+                            <li>
+                                <span>Màu có sẵn:</span>
+                                <div id="details-color" class="color__checkbox">
+                                    
+                                </div>
+                            </li>
+                            <li>
+                                <span>Kích thước có sẵn:</span>
+                                <div id="details-size" class="size__btn">
+                                    
+                                </div>
+                            </li>
+                            <li>
+                                <span>Khuyến mãi:</span>
+                                <p>Miễn phí giao hàng</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="product__details__button" style="text-align: center">
+                        <button type="submit" style="border: none;float:none" id="button-add" class="cart-btn"><span class="icon_bag_alt"></span> Thêm vào giỏ hàng</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" style="color: #fff" data-dismiss="modal">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Shop Section End -->
-    @stop
+
+<script>
+    function formatNumber(num) {
+        return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+    $(document).ready(function(){
+
+        $(".cart-add").click(function(event){
+            event.preventDefault();
+            $("#modal-cart").modal('show');
+            var id = $(this).data("id");
+            $(".details-id").html('<div id="details-id" data-id="'+id+'"></div>')
+            $.ajax({
+                url: "/details/"+id,
+                type: "GET",
+                success: function(data){
+                    $("#title-details").html(data.data.title);
+                    $("#details-cat").html(data.cat);
+                    $("#details-price").html(formatNumber(data.data.price_old));
+                    $("#details-price-sale").html(formatNumber(data.data.price));
+                    $("#details-description").html(data.data.description);
+                    $('#details-image').attr('src', data.data.image);
+                    let size = "";
+                    $.each(data.size,function(key,value){
+                        size += '<label>';
+                        size += '<input class="refresh" type="radio" name="size" value="'+value+'" />';
+                        size += value;
+                        size += '</label>';
+                    });
+                    $("#details-size").html(size);
+
+                    // 
+                    let color ="";
+                    $.each(data.color,function(key,value){
+                        color += '<label>';
+                        color += '<input class="refresh" type="checkbox" name="color" value="'+value+'" />';
+                        color += value;
+                        color += '</label>';
+                    });
+                    $("#details-color").html(color);
+                }
+            });
+        });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $("#product-add").on('submit',function(event) {
+            event.preventDefault();
+            var id = $("#details-id").data("id");
+            var formData = new FormData(this);
+            $.ajax({
+                type: 'POST',
+                url: '/cart/add/'+id,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: (data) =>{
+                if(data.errors){
+                    swal(
+                        'Lỗi !',
+                        data.errors,
+                        'error'
+                    )
+                }else{
+                    $('.refresh').val('');
+                    $("#modal-cart").modal('hide');
+                    // $("#tip-cart").reload();
+                    // $("#tip-cart").fadeIn('fast');
+                    toastr.success(data.success, 'Thông báo', {timeOut: 3000});
+                }
+            },
+            })
+        })
+
+        $('#modal-cart').on('show.bs.modal', function(e) {
+            var action=$( e.relatedTarget).data('action');
+            $('#form-delete').attr('action',action );
+        });
+
+    });
+
+
+    $("#details-size").on("click","label", function(){
+        // alert("success");
+        $('label').removeClass("active");
+        $(this).addClass("active");
+    });
+    $("#details-color").on("click","label", function(){
+        $('label').removeClass("active-color");
+        $(this).addClass("active-color");
+    });
+
+
+    $('.count').each(function () {
+    $(this).prop('Counter',0).animate({
+        Counter: $(this).text()
+    }, {
+        duration: 3000,
+        easing: 'swing',
+        step: function (now) {
+            $(this).text(Math.ceil(now));
+        }
+    });
+
+        $("input:checkbox").on('click', function() {
+            var $box = $(this);
+            if ($box.is(":checked")) {
+                var group = "input:checkbox[name='" + $box.attr("name") + "']"; 
+                $(group).prop("checked", false);
+                $box.prop("checked", true);
+            } else {
+                $box.prop("checked", false);
+            }
+        });
+    });
+</script>
+
+@stop
 

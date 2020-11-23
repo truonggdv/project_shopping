@@ -122,7 +122,7 @@
                             <div class="details-id"></div>
                             <div class="col-lg-6">
                             <div class="product__details__pic__slider owl-carousel owl-loaded">
-                                <img class="img-fluid" src="http://127.0.0.1:8000/article/dam-om-phoi-voan-kieu-dam-du-tiec-cach-dieu-dinh-hoa-theu-dep-romi3051.jpg" alt="">
+                                <img class="img-fluid" id="details-image" src="" alt="">
                             </div>
                             </div>
                             <div class="col-lg-6">
@@ -192,6 +192,7 @@
                         $("#details-price").html(formatNumber(data.data.price_old));
                         $("#details-price-sale").html(formatNumber(data.data.price));
                         $("#details-description").html(data.data.description);
+                        $('#details-image').attr('src', data.data.image);
                         let size = "";
                         $.each(data.size,function(key,value){
                             size += '<label>';
@@ -214,11 +215,39 @@
                 });
             });
     
-            $("#product-add").on('submit',function(event) {
-                event.preventDefault();
-                var id = $("#details-id").data("id");
-                var formData = new FormData(this);
+            $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $("#product-add").on('submit',function(event) {
+            event.preventDefault();
+            var id = $("#details-id").data("id");
+            var formData = new FormData(this);
+            $.ajax({
+                type: 'POST',
+                url: '/cart/add/'+id,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: (data) =>{
+                if(data.errors){
+                    swal(
+                        'Lỗi !',
+                        data.errors,
+                        'error'
+                    )
+                }else{
+                    $('.refresh').val('');
+                    $("#modal-cart").modal('hide');
+                    // $("#tip-cart").reload();
+                    // $("#tip-cart").fadeIn('fast');
+                    toastr.success(data.success, 'Thông báo', {timeOut: 3000});
+                }
+            },
             })
+        })
     
             $('#modal-cart').on('show.bs.modal', function(e) {
                 var action=$( e.relatedTarget).data('action');
