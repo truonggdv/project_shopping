@@ -24,7 +24,7 @@
     <section class="shop-cart spad">
     <div class="container">
         @if(Cart::count() > 0)
-        <form name="update-cart" id="update-cart">
+        <form>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="shop__cart__table">
@@ -42,7 +42,7 @@
                                 @foreach ($data as $item)
                                 <tr>
                                     <td class="cart__product__item">
-                                    {{-- <input style="display: none" type="text" name="rowId[]" value="{{$item->rowId}}"> --}}
+                                    {{-- <input style="display: none" type="text" name="rowId" value="{{$item->rowId}}"> --}}
                                         <img width="120" height="130" src="{{\App\Library\Files::media( $item->options->image )}}" alt="">
                                         <div class="cart__product__item__title">
                                             <h6> {{$item->name}} </h6>
@@ -64,7 +64,6 @@
                                     </td>
                                     <td class="cart__total">{{ number_format($item->price*$item->qty) }} VNĐ</td>
                                     <td class="cart__close">
-                                            {{-- <button style="border: none;" type="submit"><span class="icon_close"></span></button> --}}
                                             <span class="icon_close" data-id="{{$item->rowId}}"></span>
                                     </td>
                                 </tr> 
@@ -140,19 +139,10 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $(".pro-qty").on("click",".qtybtn", function(event){
-            event.preventDefault();
-            var rowId = $(".pro-qty").data("id");
-            var qty =  $(".data-qty").val();
-            $.ajax({
-                type: 'POST',
-                url: '/cart/update',
-                data: {qty:qty,rowId:rowId},
-                cache: false,
-                contentType: false,
-                processData: false,
-            })
-            
+            $(".pro-qty").on("click",".qtybtn", function(){
+            var id = $('.pro-qty').data('id');
+            var qty = $(".data-qty").val();
+            alert(qty);
         });
         $(".icon_close").click(function(event){
             event.preventDefault();
@@ -180,7 +170,7 @@
                     }else{
                         $("#modal-cart").modal('hide');
                         $("#details-cart").load(window.location + " #details-cart");
-                        // $(".cart__total__procced").load(window.location + " .cart__total__procced");
+                        $(".cart__total__procced").load(window.location + " .cart__total__procced");
                         // location.reload();
                         toastr.success(data.success, 'Thông báo', {timeOut: 3000});
                     }

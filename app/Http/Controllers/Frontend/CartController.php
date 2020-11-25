@@ -34,8 +34,8 @@ class CartController extends Controller
     }
 
     public function Update(Request $request){
-        Cart::update($request->rowId,$request->qty);
-        // dd(1);
+        dd($request->all());
+        return response()->json(['success' => "Cập nhật giỏ hàng thành công"]);
     }
 
     public function getDelete($id){

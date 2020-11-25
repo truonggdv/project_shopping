@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Item;
+use App\Models\Feedback;
+use Validator;
 
 class IndexController extends Controller
 {
@@ -62,6 +64,40 @@ class IndexController extends Controller
 
     public function contact(){
         return view('frontend.pages.contact');
+    }
+
+    public function mailContact(Request $request){
+        // dd($request->all());
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'content' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(['errors' => $validator->errors()->first()]);
+        }
+        if($request->email){
+            $dataMail = [
+                'name'=>$request->name,
+                'email'=>$request->email,
+                'content'=>$request->content,
+
+            ];
+            $email = $request->email;
+            Mail::send('frontend.pages.content',$dataMail,function($meg) use ($email){
+                $meg->from('truongdv.hqgroup@gmail.com','Hin Shop');
+                $meg->to($email)->subject('Hin Shop');
+            });
+        }
+
+        $contr = new Feedback;
+        $contr->name = $request->name;
+        $contr->email = $request->email;
+        $contr->content = $request->content;
+        // dd($contr);
+        $contr->save();
+
+        // return redirect('lien-he')->with('success','Gửi ý kiến đóng góp thành công !');
+        return response()->json(['success' => "Cảm ơn bạn đã góp ý cho chúng tôi"]);
     }
 
     public function policy(){

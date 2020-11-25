@@ -41,18 +41,10 @@
                     </div>
                     <div class="contact__form">
                         <h5>Đóng góp ý kiến</h5>
-                        @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            </button>
-                            <strong>Thông báo !</strong> {{session('success')}}
-                        </div>
-                    @endif
-                        <form action=" {{url('lien-he')}} " method="post">
-                            {{csrf_field()}}
-                            <input type="text" name="name" required placeholder="Tên">
-                            <input type="text" name="email" placeholder="Email">
-                            <textarea name="content" required placeholder="Ý kiến đóng góp"></textarea>
+                        <form id="feedback-form" name="feedback-form">
+                            <input type="text" name="name" class="refresh" required placeholder="Tên">
+                            <input type="text" name="email" class="refresh" placeholder="Email">
+                            <textarea name="content" required class="refresh" placeholder="Ý kiến đóng góp"></textarea>
                             <button type="submit" class="site-btn">Gửi</button>
                         </form>
                     </div>
@@ -67,5 +59,41 @@
     </div>
     </section>
     <!-- Contact Section End -->
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $("#feedback-form").on('submit',function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                type: 'POST',
+                url: '/lien-he',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: (data) =>{
+                if(data.errors){
+                    swal(
+                        'Lỗi !',
+                        data.errors,
+                        'error'
+                    )
+                }else{
+                    $('.refresh').val('');
+                    swal(
+                        'Thành công !',
+                        data.success,
+                        'success'
+                    )
+                }
+            },
+            });
+        });
+        
+    </script>
 @stop
     
